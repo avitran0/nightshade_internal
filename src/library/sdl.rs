@@ -1,5 +1,6 @@
 use libc::{c_char, c_int, c_void};
 use sdl2::sys::SDL_MessageBoxFlags;
+use utils::log;
 
 use crate::{interop::cstr, library::Library};
 

@@ -2,6 +2,7 @@ use std::ffi::CString;
 
 use utils::log;
 
+pub mod client;
 pub mod sdl;
 
 pub struct Symbol {

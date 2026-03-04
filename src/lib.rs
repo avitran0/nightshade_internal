@@ -3,6 +3,8 @@ use utils::log::{self, Logger, LoggerOptions};
 use crate::library::sdl::{MessageBoxKind, SDL};
 
 mod ctor;
+mod gui;
+mod hook;
 mod interop;
 mod library;
 
