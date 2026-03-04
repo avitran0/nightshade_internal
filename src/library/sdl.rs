@@ -1,8 +1,7 @@
 use libc::{c_char, c_int, c_void};
 use sdl2::sys::SDL_MessageBoxFlags;
-use utils::log;
 
-use crate::{interop::cstr, library::Library};
+use crate::{interop::cstr, library::{Library, constants::SDL_LIB}};
 
 /// void SDL_GL_SwapWindow(SDL_Window *)
 type GlSwapFn = extern "C" fn(*mut c_void);
@@ -16,20 +15,23 @@ pub struct SDL {
     library: Library,
     gl_swap_fn: GlSwapFn,
     gl_get_proc_address_fn: GLGetProcAddressFn,
+    poll_event_fn: PollEventFn,
     message_box_fn: ShowSimpleMessageBoxFn,
 }
 
 impl SDL {
     pub fn new() -> Option<Self> {
-        let library = Library::new("libSDL2-2.0.so.0")?;
+        let library = Library::new(SDL_LIB)?;
         let gl_swap_fn = library.function("SDL_GL_SwapWindow")?.cast();
         let gl_get_proc_address_fn = library.function("SDL_GL_GetProcAddress")?.cast();
+        let poll_event_fn = library.function("SDL_PollEvent")?.cast();
         let message_box_fn = library.function("SDL_ShowSimpleMessageBox")?.cast();
 
         Some(Self {
             library,
             gl_get_proc_address_fn,
             gl_swap_fn,
+            poll_event_fn,
             message_box_fn,
         })
     }

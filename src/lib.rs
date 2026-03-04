@@ -1,12 +1,19 @@
-use utils::log::{self, Logger, LoggerOptions};
+use std::sync::LazyLock;
+use utils::{
+    log::{self, Logger, LoggerOptions},
+    sync::Mutex,
+};
 
-use crate::library::sdl::{MessageBoxKind, SDL};
+use crate::cheat::Cheat;
 
+mod cheat;
 mod ctor;
 mod gui;
 mod hook;
 mod interop;
 mod library;
+
+pub static CHEAT: LazyLock<Mutex<Option<Cheat>>> = LazyLock::new(|| Mutex::new(None));
 
 pub fn init() {
     Logger::install(
@@ -18,12 +25,22 @@ pub fn init() {
             .truncate(true),
     );
     log::info!("loading nightshade");
-    let sdl = SDL::new().unwrap();
-    sdl.message_box(
-        MessageBoxKind::Info,
-        "Title",
-        "This is a very captivating message",
-    );
+
+    let cheat = match Cheat::new() {
+        Some(cheat) => cheat,
+        None => {
+            log::error!("failed to initialize nightshade");
+            return;
+        }
+    };
+
+    *CHEAT.lock() = Some(cheat);
+    log::info!("nightshade initialized successfully");
 }
 
-pub fn exit() {}
+pub fn exit() {
+    log::info!("unloading nightshade");
+    if let Some(cheat) = CHEAT.lock().take() {
+        drop(cheat);
+    }
+}

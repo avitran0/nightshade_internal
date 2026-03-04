@@ -1,8 +1,12 @@
-use std::ffi::CString;
-
 use utils::log;
 
+use crate::{
+    interop::cstr,
+    library::{client::Client, sdl::SDL},
+};
+
 pub mod client;
+mod constants;
 pub mod sdl;
 
 pub struct Symbol {
@@ -21,12 +25,8 @@ pub struct Library {
 
 impl Library {
     pub fn new(name: &str) -> Option<Self> {
-        let handle = unsafe {
-            libc::dlopen(
-                CString::new(name).unwrap().as_ptr(),
-                libc::RTLD_LAZY | libc::RTLD_NOLOAD,
-            )
-        };
+        let handle =
+            unsafe { libc::dlopen(cstr(name).as_ptr(), libc::RTLD_LAZY | libc::RTLD_NOLOAD) };
         if handle.is_null() {
             log::error!("failed to find {name}");
             None
@@ -36,7 +36,7 @@ impl Library {
     }
 
     pub fn function(&self, name: &str) -> Option<Symbol> {
-        let func = unsafe { libc::dlsym(self.handle, CString::new(name).unwrap().as_ptr()) };
+        let func = unsafe { libc::dlsym(self.handle, cstr(name).as_ptr()) };
         if func.is_null() {
             None
         } else {
@@ -46,5 +46,27 @@ impl Library {
 
     pub fn address(&self) -> usize {
         self.handle as usize
+    }
+}
+
+pub struct Libraries {
+    sdl: SDL,
+    client: Client,
+}
+
+impl Libraries {
+    pub fn new() -> Option<Self> {
+        let sdl = SDL::new()?;
+        let client = Client::new()?;
+
+        Some(Self { sdl, client })
+    }
+
+    pub fn sdl(&self) -> &SDL {
+        &self.sdl
+    }
+
+    pub fn client(&self) -> &Client {
+        &self.client
     }
 }

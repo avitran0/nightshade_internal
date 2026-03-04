@@ -3,8 +3,6 @@ use std::sync::{Arc, OnceLock};
 use egui::{Color32, Pos2, Rect, Stroke, StrokeKind};
 use utils::sync::Mutex;
 
-pub static GUI: OnceLock<Mutex<Gui>> = OnceLock::new();
-
 pub struct Gui {
     pub ctx: egui::Context,
     pub painter: egui_glow::Painter,
