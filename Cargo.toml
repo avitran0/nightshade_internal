@@ -10,3 +10,4 @@ crate-type = ["cdylib"]
 utils = { git = "https://github.com/avitran0/utils" }
 libc = "0.2"
 glow = "0.16"
+sdl2 = "0.38"

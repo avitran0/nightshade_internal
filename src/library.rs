@@ -2,6 +2,16 @@ use std::ffi::CString;
 
 use utils::log;
 
+pub struct Symbol {
+    ptr: *mut libc::c_void,
+}
+
+impl Symbol {
+    pub fn cast<T>(self) -> T {
+        unsafe { std::mem::transmute_copy(&self.ptr) }
+    }
+}
+
 pub struct Library {
     handle: *mut libc::c_void,
 }
@@ -19,6 +29,15 @@ impl Library {
             None
         } else {
             Some(Self { handle })
+        }
+    }
+
+    pub fn function(&self, name: &str) -> Option<Symbol> {
+        let func = unsafe { libc::dlsym(self.handle, CString::new(name).unwrap().as_ptr()) };
+        if func.is_null() {
+            None
+        } else {
+            Some(Symbol { ptr: func })
         }
     }
 

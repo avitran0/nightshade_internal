@@ -1,8 +1,12 @@
 use utils::log::{self, Logger, LoggerOptions};
 
-use crate::library::Library;
+use crate::{
+    library::Library,
+    sdl::{MessageBoxKind, SDL, ShowSimpleMessageBoxFn},
+};
 
 mod ctor;
+mod interop;
 mod library;
 mod sdl;
 
@@ -12,10 +16,15 @@ pub fn init() {
             .debug(true)
             .module(module_path!())
             .stdout(true)
-            .file("nightshade.log"),
+            .file("/home/felix/nightshade.log"),
     );
-    let sdl = Library::new("libSDL2-2.0.so.0").unwrap();
-    log::info!("sdl: 0x{:X}", sdl.address());
+    log::info!("loading nightshade");
+    let sdl = SDL::new().unwrap();
+    sdl.message_box(
+        MessageBoxKind::Info,
+        "Title",
+        "This is a very captivating message",
+    );
 }
 
 pub fn exit() {}

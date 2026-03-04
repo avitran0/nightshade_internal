@@ -1,6 +1,6 @@
 use crate::{exit, init};
 
-#[allow(dead_code)]
+#[used]
 #[unsafe(link_section = ".init_array")]
 static INIT: extern "C" fn() = constructor;
 
@@ -9,7 +9,7 @@ pub extern "C" fn constructor() {
     init();
 }
 
-#[allow(dead_code)]
+#[used]
 #[unsafe(link_section = ".fini_array")]
 static EXIT: extern "C" fn() = destructor;
 
