@@ -2,6 +2,8 @@ use std::ffi::CString;
 
 use utils::log;
 
+pub mod sdl;
+
 pub struct Symbol {
     ptr: *mut libc::c_void,
 }

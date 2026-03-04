@@ -1,22 +1,30 @@
-use libc::{c_char, c_void};
+use libc::{c_char, c_int, c_void};
 use sdl2::sys::SDL_MessageBoxFlags;
 
 use crate::{interop::cstr, library::Library};
 
-pub type ShowSimpleMessageBoxFn = extern "C" fn(u32, *const c_char, *const c_char, *mut c_void);
+/// void SDL_GL_SwapWindow(SDL_Window *)
+type GlSwapFn = extern "C" fn(*mut c_void);
+/// int SDL_PollEvent(SDL_Event *)
+type PollEventFn = extern "C" fn(*mut c_void) -> c_int;
+/// int SDL_ShowSimpleMessageBox(Uint32 flags, const char *title, const char *message, SDL_Window *window)
+type ShowSimpleMessageBoxFn = extern "C" fn(u32, *const c_char, *const c_char, *mut c_void);
 
 pub struct SDL {
     library: Library,
+    gl_swap_fn: GlSwapFn,
     message_box_fn: ShowSimpleMessageBoxFn,
 }
 
 impl SDL {
     pub fn new() -> Option<Self> {
         let library = Library::new("libSDL2-2.0.so.0")?;
+        let gl_swap_fn = library.function("SDL_GL_SwapWindow")?.cast();
         let message_box_fn = library.function("SDL_ShowSimpleMessageBox")?.cast();
 
         Some(Self {
             library,
+            gl_swap_fn,
             message_box_fn,
         })
     }

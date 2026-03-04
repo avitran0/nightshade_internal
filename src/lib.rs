@@ -1,14 +1,10 @@
 use utils::log::{self, Logger, LoggerOptions};
 
-use crate::{
-    library::Library,
-    sdl::{MessageBoxKind, SDL, ShowSimpleMessageBoxFn},
-};
+use crate::library::sdl::{MessageBoxKind, SDL};
 
 mod ctor;
 mod interop;
 mod library;
-mod sdl;
 
 pub fn init() {
     Logger::install(
