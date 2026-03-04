@@ -12,7 +12,8 @@ pub fn init() {
             .debug(true)
             .module(module_path!())
             .stdout(true)
-            .file("/home/felix/nightshade.log"),
+            .file("/tmp/nightshade.log")
+            .truncate(true),
     );
     log::info!("loading nightshade");
     let sdl = SDL::new().unwrap();
