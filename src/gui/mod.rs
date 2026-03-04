@@ -1,12 +1,13 @@
 use std::sync::{Arc, OnceLock};
 
+use egui::{Color32, Pos2, Rect, Stroke, StrokeKind};
 use utils::sync::Mutex;
 
-static GUI: OnceLock<Mutex<Gui>> = OnceLock::new();
+pub static GUI: OnceLock<Mutex<Gui>> = OnceLock::new();
 
-struct Gui {
-    ctx: egui::Context,
-    painter: egui_glow::Painter,
+pub struct Gui {
+    pub ctx: egui::Context,
+    pub painter: egui_glow::Painter,
 }
 
 impl Gui {
@@ -17,7 +18,45 @@ impl Gui {
         Self { ctx, painter }
     }
 
-    pub fn start_frame(&mut self) {
-        
+    pub fn start_frame(&mut self, input: egui::RawInput) {
+        self.ctx.begin_pass(input);
+    }
+
+    pub fn end_frame(&mut self) {
+        let output = self.ctx.end_pass();
+        // todo: handle platform output (cursors, etc)
+        let clipped_primitives = self.ctx.tessellate(output.shapes, output.pixels_per_point);
+        self.painter.paint_and_update_textures(
+            [0, 0],
+            output.pixels_per_point,
+            &clipped_primitives,
+            &output.textures_delta,
+        );
+    }
+
+    pub fn screen_painter(&self) -> egui::Painter {
+        self.ctx.layer_painter(egui::LayerId::new(
+            egui::Order::Foreground,
+            egui::Id::new("gui_painter"),
+        ))
+    }
+
+    pub fn draw_line(&self, points: [Pos2; 2], stroke: Stroke) {
+        self.screen_painter().line_segment(points, stroke);
+    }
+
+    pub fn draw_text(&self, pos: Pos2, text: &str, color: Color32) {
+        self.screen_painter().text(
+            pos,
+            egui::Align2::LEFT_TOP,
+            text,
+            egui::FontId::proportional(16.0),
+            color,
+        );
+    }
+
+    pub fn draw_rect(&self, rect: Rect, stroke: Stroke, fill: Color32) {
+        self.screen_painter()
+            .rect(rect, 0.0, fill, stroke, StrokeKind::Inside);
     }
 }
