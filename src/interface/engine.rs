@@ -15,11 +15,8 @@ impl EngineInterface {
         type ScreenSizeFn = extern "C" fn(*const c_void, *mut c_int, *mut c_int);
         let mut width = 0;
         let mut height = 0;
-        (self.interface.vfunc::<ScreenSizeFn>(5))(
-            std::ptr::null(),
-            &raw mut width,
-            &raw mut height,
-        );
+        let func: ScreenSizeFn = self.interface.vfunc(5);
+        func(self.interface.handle(), &mut width, &mut height);
         (width, height)
     }
 }

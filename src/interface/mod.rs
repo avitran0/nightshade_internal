@@ -20,11 +20,15 @@ impl Interface {
         Self { handle }
     }
 
-    pub fn vtable(&self) -> *const c_void {
-        unsafe { *(self.handle as *const *const c_void) }
+    pub fn handle(&self) -> *const c_void {
+        self.handle
+    }
+
+    pub fn vtable(&self) -> *const *const c_void {
+        unsafe { *(self.handle as *const *const *const c_void) }
     }
 
     pub fn vfunc<T>(&self, index: usize) -> T {
-        unsafe { std::mem::transmute_copy(&self.vtable().add(index).read()) }
+        unsafe { std::mem::transmute_copy(&*self.vtable().add(index)) }
     }
 }
