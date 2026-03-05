@@ -1,5 +1,5 @@
 use crate::{
-    interface::Interface,
+    interface::{Interface, engine::EngineInterface},
     library::{Library, constants::ENGINE_LIB},
 };
 
@@ -14,7 +14,9 @@ impl Engine {
         Some(Self { library })
     }
 
-    pub fn interface_engine(&self) -> Option<Interface> {
-        self.library.interface("VEngineClient014")
+    pub fn interface_engine(&self) -> Option<EngineInterface> {
+        Some(EngineInterface::new(
+            self.library.interface("VEngineClient014")?,
+        ))
     }
 }

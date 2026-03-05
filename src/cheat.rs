@@ -1,5 +1,7 @@
 use std::sync::Arc;
 
+use utils::log;
+
 use crate::{
     gui::Gui,
     library::{Libraries, sdl::MessageBoxKind},
@@ -17,19 +19,15 @@ impl Cheat {
         let gl = Arc::new(libraries.sdl().gl());
         let gui = Gui::new(gl.clone());
 
+        log::info!("{:?}", libraries.engine().interface_engine()?.screen_size());
+
         libraries.sdl().message_box(
             MessageBoxKind::Info,
             "nightshade",
             "initialized successfully",
         );
 
-        let _ = libraries.engine().interface_engine()?;
-
-        Some(Self {
-            gui,
-            libraries,
-            gl,
-        })
+        Some(Self { gui, libraries, gl })
     }
 }
 
