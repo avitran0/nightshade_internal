@@ -3,12 +3,18 @@ use utils::log;
 use crate::{
     interface::{Interface, InterfaceRegistration},
     interop::{cstr, str},
-    library::{client::Client, sdl::SDL},
+    library::{client::Client, engine::Engine, sdl::SDL},
 };
 
+use libc::c_void;
+
 pub mod client;
-mod constants;
+pub mod constants;
+pub mod engine;
+pub mod material_system;
 pub mod sdl;
+
+type CreateInterfaceFn = extern "C" fn() -> *mut c_void;
 
 pub struct Symbol {
     ptr: *mut libc::c_void,
@@ -54,15 +60,17 @@ impl Library {
             let cur = unsafe { &*interface_reg };
             let interface_name = str(cur.name);
 
-            log::info!("interface: {name}");
+            // log::info!("interface: {interface_name}");
             if interface_name == name {
-                
+                let interface = (cur.register_fn)();
+                log::info!("found interface {name} at {interface:?}");
+                return Some(Interface::new(interface));
             }
-            // if matches, cur.create_fn() as Interface *
 
             interface_reg = cur.next;
         }
 
+        log::error!("failed to find interface {name}");
         None
     }
 
@@ -74,14 +82,20 @@ impl Library {
 pub struct Libraries {
     sdl: SDL,
     client: Client,
+    engine: Engine,
 }
 
 impl Libraries {
     pub fn new() -> Option<Self> {
         let sdl = SDL::new()?;
         let client = Client::new()?;
+        let engine = Engine::new()?;
 
-        Some(Self { sdl, client })
+        Some(Self {
+            sdl,
+            client,
+            engine,
+        })
     }
 
     pub fn sdl(&self) -> &SDL {
@@ -90,5 +104,9 @@ impl Libraries {
 
     pub fn client(&self) -> &Client {
         &self.client
+    }
+
+    pub fn engine(&self) -> &Engine {
+        &self.engine
     }
 }

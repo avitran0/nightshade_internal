@@ -23,7 +23,13 @@ impl Cheat {
             "initialized successfully",
         );
 
-        Some(Self { gui, libraries, gl })
+        let _ = libraries.engine().interface_engine()?;
+
+        Some(Self {
+            gui,
+            libraries,
+            gl,
+        })
     }
 }
 

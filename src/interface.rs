@@ -1,6 +1,6 @@
-use libc::c_char;
+use libc::{c_char, c_void};
 
-pub type InterfaceRegisterFn = extern "C" fn();
+pub type InterfaceRegisterFn = extern "C" fn() -> *const c_void;
 
 #[repr(C)]
 pub struct InterfaceRegistration {
@@ -10,5 +10,11 @@ pub struct InterfaceRegistration {
 }
 
 pub struct Interface {
-    handle: usize,
+    handle: *const c_void,
+}
+
+impl Interface {
+    pub fn new(handle: *const c_void) -> Self {
+        Self { handle }
+    }
 }

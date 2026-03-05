@@ -1,5 +1,4 @@
 use libc::{c_char, c_int, c_void};
-use sdl2::sys::SDL_MessageBoxFlags;
 
 use crate::{
     interop::cstr,
@@ -62,11 +61,12 @@ pub enum MessageBoxKind {
 }
 
 impl MessageBoxKind {
+    // https://wiki.libsdl.org/SDL2/SDL_MessageBoxFlags
     fn value(&self) -> u32 {
         match self {
-            Self::Info => SDL_MessageBoxFlags::SDL_MESSAGEBOX_INFORMATION as u32,
-            Self::Warn => SDL_MessageBoxFlags::SDL_MESSAGEBOX_WARNING as u32,
-            Self::Error => SDL_MessageBoxFlags::SDL_MESSAGEBOX_ERROR as u32,
+            Self::Info => 0x00000040,
+            Self::Warn => 0x00000020,
+            Self::Error => 0x00000010,
         }
     }
 }
