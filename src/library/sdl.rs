@@ -15,7 +15,7 @@ type PollEventFn = extern "C" fn(*mut c_void) -> c_int;
 type ShowSimpleMessageBoxFn = extern "C" fn(u32, *const c_char, *const c_char, *mut c_void);
 
 pub struct SDL {
-    pub library: Library,
+    library: Library,
     gl_swap_fn: GlSwapFn,
     gl_get_proc_address_fn: GLGetProcAddressFn,
     poll_event_fn: PollEventFn,

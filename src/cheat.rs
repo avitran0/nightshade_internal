@@ -23,8 +23,6 @@ impl Cheat {
             "initialized successfully",
         );
 
-        libraries.client().library.interface("");
-
         Some(Self { gui, libraries, gl })
     }
 }

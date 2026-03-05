@@ -1,11 +1,11 @@
-use crate::library::{Library, constants::CLIENT_LIB};
+use crate::{interface::Interface, library::{Library, constants::CLIENT_LIB}};
 
 use libc::c_void;
 
 type CreateInterfaceFn = extern "C" fn() -> *mut c_void;
 
 pub struct Client {
-    pub library: Library,
+    library: Library,
     create_interface_fn: CreateInterfaceFn,
 }
 
@@ -18,5 +18,13 @@ impl Client {
             library,
             create_interface_fn,
         })
+    }
+
+    pub fn interface_client(&self) -> Option<Interface> {
+        self.library.interface("VClient018")
+    }
+
+    pub fn interface_entity_list(&self) -> Option<Interface> {
+        self.library.interface("VClientEntityList003")
     }
 }

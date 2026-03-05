@@ -1,7 +1,9 @@
 use utils::log;
 
 use crate::{
-    interface::{Interface, InterfaceRegistration}, interop::{cstr, str}, library::{client::Client, sdl::SDL}
+    interface::{Interface, InterfaceRegistration},
+    interop::{cstr, str},
+    library::{client::Client, sdl::SDL},
 };
 
 pub mod client;
@@ -44,13 +46,18 @@ impl Library {
     }
 
     pub fn interface(&self, name: &str) -> Option<Interface> {
-        let mut interface_reg: *const InterfaceRegistration = self.symbol("s_pInterfaceRegs")?.cast();
+        let interface_reg_ptr: *const *const InterfaceRegistration =
+            self.symbol("s_pInterfaceRegs")?.cast();
+        let mut interface_reg = unsafe { *interface_reg_ptr };
 
         while !interface_reg.is_null() {
-            let cur = unsafe {&*interface_reg};
-            let name = str(cur.name);
+            let cur = unsafe { &*interface_reg };
+            let interface_name = str(cur.name);
 
             log::info!("interface: {name}");
+            if interface_name == name {
+                
+            }
             // if matches, cur.create_fn() as Interface *
 
             interface_reg = cur.next;
