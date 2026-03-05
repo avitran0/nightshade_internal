@@ -10,19 +10,22 @@ mod cheat;
 mod ctor;
 mod gui;
 mod hook;
+mod interface;
 mod interop;
 mod library;
+
+#[cfg(not(target_os = "linux"))]
+compile_error!("only linux is supported.");
 
 pub static CHEAT: LazyLock<Mutex<Option<Cheat>>> = LazyLock::new(|| Mutex::new(None));
 
 pub fn init() {
     Logger::install(
         LoggerOptions::default()
-            .debug(true)
-            .module(module_path!())
-            .stdout(true)
             .file("/tmp/nightshade.log")
-            .truncate(true),
+            .debug(true)
+            .truncate(true)
+            .module(module_path!()),
     );
     log::info!("loading nightshade");
 

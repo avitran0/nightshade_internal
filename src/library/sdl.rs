@@ -1,7 +1,10 @@
 use libc::{c_char, c_int, c_void};
 use sdl2::sys::SDL_MessageBoxFlags;
 
-use crate::{interop::cstr, library::{Library, constants::SDL_LIB}};
+use crate::{
+    interop::cstr,
+    library::{Library, constants::SDL_LIB},
+};
 
 /// void SDL_GL_SwapWindow(SDL_Window *)
 type GlSwapFn = extern "C" fn(*mut c_void);
@@ -12,7 +15,7 @@ type PollEventFn = extern "C" fn(*mut c_void) -> c_int;
 type ShowSimpleMessageBoxFn = extern "C" fn(u32, *const c_char, *const c_char, *mut c_void);
 
 pub struct SDL {
-    library: Library,
+    pub library: Library,
     gl_swap_fn: GlSwapFn,
     gl_get_proc_address_fn: GLGetProcAddressFn,
     poll_event_fn: PollEventFn,
@@ -22,10 +25,10 @@ pub struct SDL {
 impl SDL {
     pub fn new() -> Option<Self> {
         let library = Library::new(SDL_LIB)?;
-        let gl_swap_fn = library.function("SDL_GL_SwapWindow")?.cast();
-        let gl_get_proc_address_fn = library.function("SDL_GL_GetProcAddress")?.cast();
-        let poll_event_fn = library.function("SDL_PollEvent")?.cast();
-        let message_box_fn = library.function("SDL_ShowSimpleMessageBox")?.cast();
+        let gl_swap_fn = library.symbol("SDL_GL_SwapWindow")?.cast();
+        let gl_get_proc_address_fn = library.symbol("SDL_GL_GetProcAddress")?.cast();
+        let poll_event_fn = library.symbol("SDL_PollEvent")?.cast();
+        let message_box_fn = library.symbol("SDL_ShowSimpleMessageBox")?.cast();
 
         Some(Self {
             library,

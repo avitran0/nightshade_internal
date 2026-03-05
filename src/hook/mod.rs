@@ -1,17 +1,14 @@
 pub mod pattern;
 
-pub struct Hook {}
+pub struct Hook {
+    address: usize,
+}
 
 impl Hook {
-    pub fn new(_address: usize) -> Self {
-        Self {}
-    }
 
-    pub fn unhook(&self) {}
 }
 
 impl Drop for Hook {
     fn drop(&mut self) {
-        self.unhook();
     }
 }

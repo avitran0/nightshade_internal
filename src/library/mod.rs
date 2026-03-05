@@ -1,8 +1,7 @@
 use utils::log;
 
 use crate::{
-    interop::cstr,
-    library::{client::Client, sdl::SDL},
+    interface::{Interface, InterfaceRegistration}, interop::{cstr, str}, library::{client::Client, sdl::SDL}
 };
 
 pub mod client;
@@ -35,13 +34,29 @@ impl Library {
         }
     }
 
-    pub fn function(&self, name: &str) -> Option<Symbol> {
+    pub fn symbol(&self, name: &str) -> Option<Symbol> {
         let func = unsafe { libc::dlsym(self.handle, cstr(name).as_ptr()) };
         if func.is_null() {
             None
         } else {
             Some(Symbol { ptr: func })
         }
+    }
+
+    pub fn interface(&self, name: &str) -> Option<Interface> {
+        let mut interface_reg: *const InterfaceRegistration = self.symbol("s_pInterfaceRegs")?.cast();
+
+        while !interface_reg.is_null() {
+            let cur = unsafe {&*interface_reg};
+            let name = str(cur.name);
+
+            log::info!("interface: {name}");
+            // if matches, cur.create_fn() as Interface *
+
+            interface_reg = cur.next;
+        }
+
+        None
     }
 
     pub fn address(&self) -> usize {
