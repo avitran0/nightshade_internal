@@ -2,7 +2,7 @@ use libc::{c_char, c_int, c_void};
 
 use crate::{
     interop::cstr,
-    library::{Library, constants::SDL_LIB},
+    library::{Library, constants::SDL_LIB, sdl_event::SdlEvent},
 };
 
 /// void SDL_GL_SwapWindow(SDL_Window *)
@@ -60,33 +60,6 @@ impl Sdl {
 
     pub fn poll_event_ptr(&self) -> usize {
         self.poll_event_fn as usize
-    }
-}
-
-#[repr(C)]
-#[derive(Clone, Copy)]
-pub union SdlEvent {
-    kind: u32,
-    mouse_motion: SdlMouseMotionEvent,
-}
-
-#[repr(C)]
-#[derive(Debug, Clone, Copy)]
-pub struct SdlMouseMotionEvent {
-    kind: u32,
-    timestamp: u32,
-    window_id: u32,
-    which: u32,
-    state: u32,
-    x: i32,
-    y: i32,
-    x_rel: i32,
-    y_rel: i32,
-}
-
-impl SdlEvent {
-    pub fn egui(&self) -> egui::Event {
-        egui::Event::PointerGone
     }
 }
 

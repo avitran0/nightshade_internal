@@ -5,10 +5,7 @@ use utils::log;
 use crate::{
     gui::Gui,
     hook::{ClientFrameStage, Hooks},
-    library::{
-        Libraries,
-        sdl::{MessageBoxKind, SdlEvent},
-    },
+    library::{Libraries, sdl::MessageBoxKind, sdl_event::SdlEvent},
 };
 
 pub struct Cheat {

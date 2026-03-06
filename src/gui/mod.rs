@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use egui::{Color32, Pos2, Rect, Stroke, StrokeKind, Ui};
 
-use crate::library::sdl::SdlEvent;
+use crate::library::sdl_event::SdlEvent;
 
 pub struct Gui {
     pub ctx: egui::Context,
@@ -24,7 +24,9 @@ impl Gui {
     }
 
     pub fn add_event(&mut self, event: &SdlEvent) {
-        self.input.events.push(event.egui());
+        if let Some(ev) = event.egui() {
+            self.input.events.push(ev);
+        }
     }
 
     pub fn start_frame(&mut self, screen_rect: egui::Rect) {

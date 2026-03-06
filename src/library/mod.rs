@@ -11,6 +11,7 @@ pub mod constants;
 pub mod engine;
 pub mod material_system;
 pub mod sdl;
+pub mod sdl_event;
 
 pub struct Symbol {
     pub ptr: *mut libc::c_void,

@@ -2,7 +2,16 @@ use libc::{c_int, c_void};
 use std::sync::atomic::{AtomicUsize, Ordering};
 use utils::log;
 
-use crate::{CHEAT, hook::sdl_hook::SdlHook, interface::Interface, library::{Libraries, sdl::{GlSwapFn, PollEventFn, SdlEvent}}};
+use crate::{
+    CHEAT,
+    hook::sdl_hook::SdlHook,
+    interface::Interface,
+    library::{
+        Libraries,
+        sdl::{GlSwapFn, PollEventFn},
+        sdl_event::SdlEvent,
+    },
+};
 
 pub mod pattern;
 pub mod sdl_hook;
@@ -58,8 +67,9 @@ impl Drop for Hook {
 }
 
 pub struct Hooks {
-    pub sdl_gl_swap_window: SdlHook,
     pub frame_stage_notify: Hook,
+    pub sdl_gl_swap_window: SdlHook,
+    pub sdl_poll_event: SdlHook,
 }
 
 static ORIGINAL_FRAME_STAGE_NOTIFY: AtomicUsize = AtomicUsize::new(0);
@@ -94,8 +104,9 @@ impl Hooks {
         );
 
         Some(Self {
-            sdl_gl_swap_window,
             frame_stage_notify,
+            sdl_gl_swap_window,
+            sdl_poll_event,
         })
     }
 
@@ -156,7 +167,7 @@ extern "C" fn sdl_poll_event_hook(event: *mut SdlEvent) -> c_int {
     };
 
     if let Some(cheat) = CHEAT.lock().as_mut() {
-        let event = unsafe {&*event};
+        let event = unsafe { &*event };
         cheat.poll_event(event);
     }
 
