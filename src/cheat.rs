@@ -5,7 +5,7 @@ use utils::log;
 
 use crate::{
     gui::Gui,
-    hook::Hooks,
+    hook::{ClientFrameStage, Hooks},
     library::{Libraries, sdl::MessageBoxKind},
 };
 
@@ -39,7 +39,9 @@ impl Cheat {
         })
     }
 
-    pub fn frame_stage_notify(&mut self) {
+    pub fn frame_stage_notify(&mut self, stage: ClientFrameStage) {}
+
+    pub fn gl_swap_buffers(&mut self) {
         self.gui.start_frame(RawInput::default());
         self.gui
             .draw_text(egui::pos2(50.0, 50.0), "text here", egui::Color32::WHITE);

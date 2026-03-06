@@ -2,7 +2,7 @@ use libc::{c_char, c_int, c_void};
 
 use crate::{
     interop::cstr,
-    library::{Library, constants::SDL_LIB},
+    library::{constants::SDL_LIB, Library},
 };
 
 /// void SDL_GL_SwapWindow(SDL_Window *)
@@ -51,6 +51,10 @@ impl SDL {
             cstr(message).as_ptr(),
             std::ptr::null_mut(),
         );
+    }
+
+    pub fn gl_swap_window_ptr(&self) -> usize {
+        self.gl_swap_fn as usize
     }
 }
 
