@@ -158,7 +158,7 @@ extern "C" fn sdl_swap_window_hook(window: *mut c_void) {
 }
 
 extern "C" fn sdl_poll_event_hook(event: *mut SdlEvent) -> c_int {
-    let original_ptr = ORIGINAL_SDL_SWAP_WINDOW.load(Ordering::Relaxed);
+    let original_ptr = ORIGINAL_SDL_POLL_EVENT.load(Ordering::Relaxed);
     let value = if original_ptr != 0 {
         let original_fn: PollEventFn = unsafe { std::mem::transmute(original_ptr) };
         original_fn(event)
@@ -166,9 +166,14 @@ extern "C" fn sdl_poll_event_hook(event: *mut SdlEvent) -> c_int {
         0
     };
 
-    if let Some(cheat) = CHEAT.lock().as_mut() {
-        let event = unsafe { &*event };
+    if value != 0
+        && let Some(cheat) = CHEAT.lock().as_mut()
+    {
+        let event = unsafe { &mut *event };
         cheat.poll_event(event);
+        if cheat.menu_open() {
+            event.kind = 0;
+        }
     }
 
     value

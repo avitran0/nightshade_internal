@@ -12,7 +12,7 @@ pub struct Cheat {
     gui: Gui,
     gl: Arc<glow::Context>,
     libraries: Libraries,
-    pub hooks: Hooks,
+    hooks: Hooks,
 }
 
 impl Cheat {
@@ -36,6 +36,10 @@ impl Cheat {
             gl,
             hooks,
         })
+    }
+
+    pub fn menu_open(&self) -> bool {
+        self.gui.enabled
     }
 
     pub fn frame_stage_notify(&mut self, _stage: ClientFrameStage) {}

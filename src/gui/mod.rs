@@ -1,10 +1,12 @@
 use std::sync::Arc;
 
 use egui::{Color32, Pos2, Rect, Stroke, StrokeKind, Ui};
+use utils::log;
 
-use crate::library::sdl_event::SdlEvent;
+use crate::library::sdl_event::{SDL_KEYDOWN, SdlEvent};
 
 pub struct Gui {
+    pub enabled: bool,
     pub ctx: egui::Context,
     pub painter: egui_glow::Painter,
     pub input: egui::RawInput,
@@ -17,6 +19,7 @@ impl Gui {
         let input = egui::RawInput::default();
 
         Self {
+            enabled: true,
             ctx,
             painter,
             input,
@@ -24,7 +27,19 @@ impl Gui {
     }
 
     pub fn add_event(&mut self, event: &SdlEvent) {
+        if unsafe { event.kind } == SDL_KEYDOWN {
+            log::info!("key_event: {:?}", unsafe { event.keyboard });
+        }
         if let Some(ev) = event.egui() {
+            if matches!(
+                ev,
+                egui::Event::Key {
+                    key: egui::Key::Delete,
+                    ..
+                }
+            ) {
+                self.enabled = !self.enabled;
+            }
             self.input.events.push(ev);
         }
     }
@@ -32,7 +47,7 @@ impl Gui {
     pub fn start_frame(&mut self, screen_rect: egui::Rect) {
         let input = egui::RawInput {
             screen_rect: Some(screen_rect),
-            ..self.input.clone()
+            ..self.input.take()
         };
         self.ctx.begin_pass(input);
     }

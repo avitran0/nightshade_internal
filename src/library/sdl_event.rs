@@ -1,9 +1,8 @@
+use egui::{Event, Key, Modifiers, PointerButton, Pos2, vec2};
 use libc::c_char;
-use egui::{Event, Key, Modifiers, Pos2, PointerButton, vec2};
 
 pub const SDL_KEYDOWN: u32 = 0x300;
 pub const SDL_KEYUP: u32 = 0x301;
-pub const SDL_TEXTEDITING: u32 = 0x302;
 pub const SDL_TEXTINPUT: u32 = 0x303;
 pub const SDL_MOUSEMOTION: u32 = 0x400;
 pub const SDL_MOUSEBUTTONDOWN: u32 = 0x401;
@@ -136,17 +135,13 @@ impl SdlEvent {
                 SDL_KEYDOWN | SDL_KEYUP => {
                     let ev = self.keyboard;
                     let pressed = ev.state == 1;
-                    if let Some(key) = keycode_to_egui(ev.keysym.sym) {
-                        Some(Event::Key {
-                            key,
-                            physical_key: None,
-                            pressed,
-                            repeat: ev.repeat != 0,
-                            modifiers: sdl_modifiers_to_egui(ev.keysym.mod_),
-                        })
-                    } else {
-                        None
-                    }
+                    keycode_to_egui(ev.keysym.sym).map(|key| Event::Key {
+                        key,
+                        physical_key: None,
+                        pressed,
+                        repeat: ev.repeat != 0,
+                        modifiers: sdl_modifiers_to_egui(ev.keysym.mod_),
+                    })
                 }
                 SDL_TEXTINPUT => {
                     let ev = self.text_input;
@@ -180,16 +175,7 @@ fn keycode_to_egui(sym: i32) -> Option<Key> {
         8 => Some(Key::Backspace),
         9 => Some(Key::Tab),
         32 => Some(Key::Space),
-        1073741906 => Some(Key::ArrowUp),
-        1073741905 => Some(Key::ArrowDown),
-        1073741904 => Some(Key::ArrowLeft),
-        1073741903 => Some(Key::ArrowRight),
-        1073741899 => Some(Key::PageUp),
-        1073741902 => Some(Key::PageDown),
-        1073741898 => Some(Key::Home),
-        1073741901 => Some(Key::End),
-        1073741896 => Some(Key::Insert),
-        1073741897 => Some(Key::Delete),
+        127 => Some(Key::Delete),
         97..=122 => {
             // a-z -> A-Z
             let char_val = (sym as u8 as char).to_ascii_uppercase();
@@ -200,18 +186,6 @@ fn keycode_to_egui(sym: i32) -> Option<Key> {
             let char_val = sym as u8 as char;
             Key::from_name(char_val.to_string().as_str())
         }
-        1073741882 => Some(Key::F1),
-        1073741883 => Some(Key::F2),
-        1073741884 => Some(Key::F3),
-        1073741885 => Some(Key::F4),
-        1073741886 => Some(Key::F5),
-        1073741887 => Some(Key::F6),
-        1073741888 => Some(Key::F7),
-        1073741889 => Some(Key::F8),
-        1073741890 => Some(Key::F9),
-        1073741891 => Some(Key::F10),
-        1073741892 => Some(Key::F11),
-        1073741893 => Some(Key::F12),
         _ => None,
     }
 }
