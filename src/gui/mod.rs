@@ -1,7 +1,6 @@
-use std::sync::{Arc, OnceLock};
+use std::sync::Arc;
 
 use egui::{Color32, Pos2, Rect, Stroke, StrokeKind};
-use utils::sync::Mutex;
 
 pub struct Gui {
     pub ctx: egui::Context,

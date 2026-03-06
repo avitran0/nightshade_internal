@@ -28,6 +28,10 @@ impl Interface {
         unsafe { *(self.handle as *const *const *const c_void) }
     }
 
+    pub fn vfunc_raw(&self, index: usize) -> *const c_void {
+        unsafe { *self.vtable().add(index) }
+    }
+
     pub fn vfunc<T>(&self, index: usize) -> T {
         unsafe { std::mem::transmute_copy(&*self.vtable().add(index)) }
     }

@@ -1,13 +1,13 @@
 use libc::c_void;
-use utils::log;
+use std::sync::atomic::{AtomicUsize, Ordering};
 
-use crate::library::{Libraries, Symbol};
+use crate::library::Libraries;
 
 pub mod pattern;
 
 pub struct Hook {
     pub address: usize,
-    pub original_function: Symbol,
+    pub original_function: usize,
 }
 
 impl Hook {
@@ -26,9 +26,7 @@ impl Hook {
 
         Self {
             address,
-            original_function: Symbol {
-                ptr: original_function as *mut libc::c_void,
-            },
+            original_function,
         }
     }
 }
@@ -42,7 +40,7 @@ impl Drop for Hook {
 
         unsafe {
             libc::mprotect(addr, len, prot);
-            *(self.address as *mut usize) = self.original_function.ptr as usize;
+            *(self.address as *mut usize) = self.original_function;
             libc::mprotect(addr, len, libc::PROT_READ | libc::PROT_EXEC);
         }
     }
@@ -52,12 +50,17 @@ pub struct Hooks {
     pub frame_stage_notify: Hook,
 }
 
+static ORIGINAL_FRAME_STAGE_NOTIFY: AtomicUsize = AtomicUsize::new(0);
+
 impl Hooks {
     pub fn hook(libraries: &Libraries) -> Option<Self> {
-        let frame_stage_notify = Hook::hook_fn(
-            libraries.client().interface_client()?.vfunc(37),
-            frame_stage_notify_hook as *const () as usize,
-        );
+        let vtable_entry =
+            unsafe { libraries.client().interface_client()?.vtable().add(37) as usize };
+        let original_ptr = unsafe { *(vtable_entry as *const usize) };
+        ORIGINAL_FRAME_STAGE_NOTIFY.store(original_ptr, Ordering::Relaxed);
+
+        let frame_stage_notify =
+            Hook::hook_fn(vtable_entry, frame_stage_notify_hook as *const () as usize);
 
         Some(Self { frame_stage_notify })
     }
@@ -65,11 +68,15 @@ impl Hooks {
 
 type FrameStageNotifyFn = extern "C" fn(*const c_void, i32);
 extern "C" fn frame_stage_notify_hook(this: *const c_void, client_frame_stage: i32) {
-    log::info!("frame stage: {client_frame_stage}");
+    if let Some(cheat) = crate::CHEAT.lock().as_mut()
+        && client_frame_stage == 0
+    {
+        cheat.frame_stage_notify();
+    }
 
-    if let Some(cheat) = crate::CHEAT.lock().as_ref() {
-        let original_fn: FrameStageNotifyFn =
-            cheat.hooks.frame_stage_notify.original_function.cast();
+    let original_ptr = ORIGINAL_FRAME_STAGE_NOTIFY.load(Ordering::Relaxed);
+    if original_ptr != 0 {
+        let original_fn: FrameStageNotifyFn = unsafe { std::mem::transmute(original_ptr) };
         original_fn(this, client_frame_stage);
     }
 }

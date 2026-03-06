@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use egui::RawInput;
 use utils::log;
 
 use crate::{
@@ -36,6 +37,13 @@ impl Cheat {
             gl,
             hooks,
         })
+    }
+
+    pub fn frame_stage_notify(&mut self) {
+        self.gui.start_frame(RawInput::default());
+        self.gui
+            .draw_text(egui::pos2(50.0, 50.0), "text here", egui::Color32::WHITE);
+        self.gui.end_frame();
     }
 }
 
