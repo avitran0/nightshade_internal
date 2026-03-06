@@ -1,9 +1,10 @@
+#include "interfaces/interfaces.hpp"
 #include "util/log.hpp"
 
 __attribute__((constructor)) void init() {
-    log::Info("loading nightshade");
+    Log::Info("loading nightshade");
+
+    Interfaces::InitInterfaces();
 }
 
-__attribute__((destructor)) void exit() {
-    log::Info("unloading nightshade");
-}
+__attribute__((destructor)) void exit() { Log::Info("unloading nightshade"); }
