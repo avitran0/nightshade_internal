@@ -3,7 +3,7 @@ use utils::log;
 use crate::{
     interface::{Interface, InterfaceRegistration},
     interop::{cstr, str},
-    library::{client::Client, engine::Engine, sdl::SDL},
+    library::{client::Client, engine::Engine, material_system::MaterialSystem, sdl::SDL},
 };
 
 use libc::c_void;
@@ -60,7 +60,7 @@ impl Library {
             let cur = unsafe { &*interface_reg };
             let interface_name = str(cur.name);
 
-            // log::info!("interface: {interface_name}");
+            log::info!("interface: {interface_name}");
             if interface_name == name {
                 let interface = (cur.register_fn)();
                 log::info!("found interface {name} at {interface:?}");
@@ -83,6 +83,7 @@ pub struct Libraries {
     sdl: SDL,
     client: Client,
     engine: Engine,
+    material_system: MaterialSystem,
 }
 
 impl Libraries {
@@ -90,11 +91,13 @@ impl Libraries {
         let sdl = SDL::new()?;
         let client = Client::new()?;
         let engine = Engine::new()?;
+        let material_system = MaterialSystem::new()?;
 
         Some(Self {
             sdl,
             client,
             engine,
+            material_system,
         })
     }
 
@@ -108,5 +111,9 @@ impl Libraries {
 
     pub fn engine(&self) -> &Engine {
         &self.engine
+    }
+
+    pub fn material_system(&self) -> &MaterialSystem {
+        &self.material_system
     }
 }

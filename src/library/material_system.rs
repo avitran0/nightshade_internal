@@ -15,6 +15,6 @@ impl MaterialSystem {
     }
 
     pub fn interface_material_system(&self) -> Option<Interface> {
-        self.library.interface("VMaterialSystem")
+        self.library.interface("VMaterialSystem080")
     }
 }
