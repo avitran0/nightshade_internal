@@ -6,22 +6,18 @@ use crate::{
     library::{client::Client, engine::Engine, material_system::MaterialSystem, sdl::SDL},
 };
 
-use libc::c_void;
-
 pub mod client;
 pub mod constants;
 pub mod engine;
 pub mod material_system;
 pub mod sdl;
 
-type CreateInterfaceFn = extern "C" fn() -> *mut c_void;
-
 pub struct Symbol {
-    ptr: *mut libc::c_void,
+    pub ptr: *mut libc::c_void,
 }
 
 impl Symbol {
-    pub fn cast<T>(self) -> T {
+    pub fn cast<T>(&self) -> T {
         unsafe { std::mem::transmute_copy(&self.ptr) }
     }
 }
@@ -60,7 +56,7 @@ impl Library {
             let cur = unsafe { &*interface_reg };
             let interface_name = str(cur.name);
 
-            log::info!("interface: {interface_name}");
+            // log::info!("interface: {interface_name}");
             if interface_name == name {
                 let interface = (cur.register_fn)();
                 log::info!("found interface {name} at {interface:?}");

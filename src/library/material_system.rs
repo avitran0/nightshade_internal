@@ -1,6 +1,6 @@
 use crate::{
     interface::Interface,
-    library::{Library, constants::MATERIAL_SYSTEM_LIB},
+    library::{constants::MATERIAL_SYSTEM_LIB, Library},
 };
 
 pub struct MaterialSystem {

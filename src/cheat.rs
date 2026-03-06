@@ -4,6 +4,7 @@ use utils::log;
 
 use crate::{
     gui::Gui,
+    hook::Hooks,
     library::{Libraries, sdl::MessageBoxKind},
 };
 
@@ -11,6 +12,7 @@ pub struct Cheat {
     gui: Gui,
     gl: Arc<glow::Context>,
     libraries: Libraries,
+    pub hooks: Hooks,
 }
 
 impl Cheat {
@@ -18,6 +20,7 @@ impl Cheat {
         let libraries = Libraries::new()?;
         let gl = Arc::new(libraries.sdl().gl());
         let gui = Gui::new(gl.clone());
+        let hooks = Hooks::hook(&libraries)?;
 
         log::info!("{:?}", libraries.engine().interface_engine()?.screen_size());
 
@@ -27,7 +30,12 @@ impl Cheat {
             "initialized successfully",
         );
 
-        Some(Self { gui, libraries, gl })
+        Some(Self {
+            gui,
+            libraries,
+            gl,
+            hooks,
+        })
     }
 }
 

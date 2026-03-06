@@ -1,5 +1,5 @@
 use crate::{
-    interface::{Interface, engine::EngineInterface},
+    interface::engine::EngineInterface,
     library::{Library, constants::ENGINE_LIB},
 };
 

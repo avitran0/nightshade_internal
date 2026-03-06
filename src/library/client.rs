@@ -1,6 +1,6 @@
 use crate::{
     interface::Interface,
-    library::{Library, constants::CLIENT_LIB},
+    library::{constants::CLIENT_LIB, Library},
 };
 
 pub struct Client {
