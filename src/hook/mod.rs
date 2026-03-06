@@ -1,7 +1,8 @@
 use libc::c_void;
 use std::sync::atomic::{AtomicUsize, Ordering};
+use utils::log;
 
-use crate::{hook::sdl_hook::SdlHook, interface::Interface, library::Libraries};
+use crate::{CHEAT, hook::sdl_hook::SdlHook, interface::Interface, library::Libraries};
 
 pub mod pattern;
 pub mod sdl_hook;
@@ -15,14 +16,20 @@ impl Hook {
     pub fn hook_fn(address: usize, new_function: usize) -> Self {
         let original_function = unsafe { *(address as *const usize) };
         let page_size = unsafe { libc::sysconf(libc::_SC_PAGESIZE) } as usize;
-        let addr = (address & !(page_size - 1)) as *mut libc::c_void;
-        let len = page_size;
+        let start_page = address & !(page_size - 1);
+        let end_page = (address + std::mem::size_of::<usize>() - 1) & !(page_size - 1);
+        let len = end_page - start_page + page_size;
+        let addr = start_page as *mut libc::c_void;
         let prot = libc::PROT_READ | libc::PROT_WRITE | libc::PROT_EXEC;
 
         unsafe {
             libc::mprotect(addr, len, prot);
             *(address as *mut usize) = new_function;
-            libc::mprotect(addr, len, libc::PROT_READ | libc::PROT_EXEC);
+            // NOTE: We intentionally do NOT restore memory protections (e.g., to PROT_READ)
+            // If the hooked function resides in a writable section (like .data, partial RELRO GOT,
+            // or dynamically allocated memory), forcing it to read-only will cause the game to
+            // segfault when it or the dynamic linker attempts to write to it later.
+            // Leaving it as PROT_READ | PROT_WRITE | PROT_EXEC is safer.
         }
 
         Self {
@@ -35,14 +42,17 @@ impl Hook {
 impl Drop for Hook {
     fn drop(&mut self) {
         let page_size = unsafe { libc::sysconf(libc::_SC_PAGESIZE) } as usize;
-        let addr = (self.address & !(page_size - 1)) as *mut libc::c_void;
-        let len = page_size;
+        let start_page = self.address & !(page_size - 1);
+        let end_page = (self.address + std::mem::size_of::<usize>() - 1) & !(page_size - 1);
+        let len = end_page - start_page + page_size;
+        let addr = start_page as *mut libc::c_void;
         let prot = libc::PROT_READ | libc::PROT_WRITE | libc::PROT_EXEC;
 
         unsafe {
             libc::mprotect(addr, len, prot);
             *(self.address as *mut usize) = self.original_function;
-            libc::mprotect(addr, len, libc::PROT_READ | libc::PROT_EXEC);
+            // Again, do not restore to PROT_READ | PROT_EXEC to avoid stripping PROT_WRITE
+            // from sections that originally had it.
         }
     }
 }
@@ -63,10 +73,18 @@ impl Hooks {
             frame_stage_notify_hook as *const () as usize,
             &ORIGINAL_FRAME_STAGE_NOTIFY,
         )?;
+        log::info!(
+            "hooked frame_stage_notify at 0x{:X}",
+            frame_stage_notify.address
+        );
         let sdl_gl_swap_window = Self::hook_sdl(
             libraries.sdl().gl_swap_window_ptr(),
             sdl_swap_window_hook as *const () as usize,
             &ORIGINAL_SDL_SWAP_WINDOW,
+        )?;
+        log::info!(
+            "hooked sdl_gl_swapwindow at 0x{:X}",
+            sdl_gl_swap_window.proxy
         );
 
         Some(Self {
@@ -89,21 +107,18 @@ impl Hooks {
         Some(hook)
     }
 
-    fn hook_sdl(function: usize, new_function: usize, atomic: &AtomicUsize) -> SdlHook {
-        let hook = SdlHook::new(function, new_function);
+    fn hook_sdl(function: usize, new_function: usize, atomic: &AtomicUsize) -> Option<SdlHook> {
+        let hook = SdlHook::new(function, new_function)?;
         atomic.store(hook.proxy, Ordering::Relaxed);
-        hook
+        Some(hook)
     }
 }
-
 type FrameStageNotifyFn = extern "C" fn(*const c_void, i32);
 extern "C" fn frame_stage_notify_hook(this: *const c_void, client_frame_stage: i32) {
-    if let Some(mut cheat_guard) = crate::CHEAT.try_lock() {
-        if let Some(cheat) = cheat_guard.as_mut() {
-            if let Some(stage) = ClientFrameStage::from_i32(client_frame_stage) {
-                cheat.frame_stage_notify(stage);
-            }
-        }
+    if let Some(cheat) = CHEAT.lock().as_mut()
+        && let Some(stage) = ClientFrameStage::from_i32(client_frame_stage)
+    {
+        cheat.frame_stage_notify(stage);
     }
 
     let original_ptr = ORIGINAL_FRAME_STAGE_NOTIFY.load(Ordering::Relaxed);
@@ -115,10 +130,8 @@ extern "C" fn frame_stage_notify_hook(this: *const c_void, client_frame_stage: i
 
 type SdlSwapWindowFn = extern "C" fn(*mut c_void);
 extern "C" fn sdl_swap_window_hook(window: *mut c_void) {
-    if let Some(mut cheat_guard) = crate::CHEAT.try_lock() {
-        if let Some(cheat) = cheat_guard.as_mut() {
-            cheat.gl_swap_buffers();
-        }
+    if let Some(cheat) = CHEAT.lock().as_mut() {
+        cheat.gl_swap_buffers();
     }
 
     let original_ptr = ORIGINAL_SDL_SWAP_WINDOW.load(Ordering::Relaxed);
