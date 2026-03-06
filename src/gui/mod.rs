@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use egui::{Color32, Pos2, Rect, Stroke, StrokeKind};
+use egui::{Color32, Pos2, Rect, Stroke, StrokeKind, Ui};
 
 pub struct Gui {
     pub ctx: egui::Context,
@@ -57,5 +57,9 @@ impl Gui {
     pub fn draw_rect(&self, rect: Rect, stroke: Stroke, fill: Color32) {
         self.screen_painter()
             .rect(rect, 0.0, fill, stroke, StrokeKind::Inside);
+    }
+
+    pub fn window(&self, title: &str, func: impl FnOnce(&mut Ui)) {
+        egui::Window::new(title).show(&self.ctx, func);
     }
 }

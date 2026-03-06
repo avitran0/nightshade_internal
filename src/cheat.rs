@@ -58,6 +58,9 @@ impl Cheat {
         self.gui.start_frame(input);
         self.gui
             .draw_text(egui::pos2(50.0, 50.0), "text here", egui::Color32::WHITE);
+        self.gui.window("title", |ui| {
+            ui.label("cock and balls");
+        });
         self.gui.end_frame([width as u32, height as u32]);
     }
 }
