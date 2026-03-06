@@ -5,7 +5,6 @@ pub struct Pattern {
 
 #[allow(dead_code)]
 impl Pattern {
-    /// Parses an IDA-style pattern string, e.g., "48 8B 05 ? ? ? ? 48 85 C0"
     pub fn new(pattern: &str) -> Self {
         let mut bytes = Vec::new();
         for byte_str in pattern.split_whitespace() {
@@ -18,7 +17,6 @@ impl Pattern {
         Self { bytes }
     }
 
-    /// Scans a memory slice for the pattern. Returns the offset of the first match.
     pub fn scan(&self, data: &[u8]) -> Option<usize> {
         if self.bytes.is_empty() || data.len() < self.bytes.len() {
             return None;
@@ -27,11 +25,11 @@ impl Pattern {
         for i in 0..=(data.len() - self.bytes.len()) {
             let mut found = true;
             for (j, byte_opt) in self.bytes.iter().enumerate() {
-                if let Some(byte) = byte_opt {
-                    if data[i + j] != *byte {
-                        found = false;
-                        break;
-                    }
+                if let Some(byte) = byte_opt
+                    && data[i + j] != *byte
+                {
+                    found = false;
+                    break;
                 }
             }
             if found {
