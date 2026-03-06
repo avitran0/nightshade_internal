@@ -5,11 +5,15 @@
 #include <cstdint>
 #include <string>
 
-#include "../util/log.hpp"
-#include "engine.hpp"
+#include "interfaces/client.hpp"
+#include "interfaces/engine.hpp"
+#include "interfaces/entity_list.hpp"
+#include "util/log.hpp"
 
 namespace Interfaces {
-    inline EngineInterface *engine_interface;
+    inline Client *client;
+    inline EntityList *entity_list;
+    inline Engine *engine;
 
     bool InitInterfaces();
 
