@@ -42,10 +42,23 @@ impl Cheat {
     pub fn frame_stage_notify(&mut self, stage: ClientFrameStage) {}
 
     pub fn gl_swap_buffers(&mut self) {
-        self.gui.start_frame(RawInput::default());
+        let Some(engine_interface) = self.libraries.engine().interface_engine() else {
+            return;
+        };
+        let (width, height) = engine_interface.screen_size();
+
+        let input = RawInput {
+            screen_rect: Some(egui::Rect::from_min_size(
+                egui::Pos2::ZERO,
+                egui::vec2(width as f32, height as f32),
+            )),
+            ..Default::default()
+        };
+
+        self.gui.start_frame(input);
         self.gui
             .draw_text(egui::pos2(50.0, 50.0), "text here", egui::Color32::WHITE);
-        self.gui.end_frame();
+        self.gui.end_frame([width as u32, height as u32]);
     }
 }
 

@@ -19,12 +19,12 @@ impl Gui {
         self.ctx.begin_pass(input);
     }
 
-    pub fn end_frame(&mut self) {
+    pub fn end_frame(&mut self, screen_size: [u32; 2]) {
         let output = self.ctx.end_pass();
         // todo: handle platform output (cursors, etc)
         let clipped_primitives = self.ctx.tessellate(output.shapes, output.pixels_per_point);
         self.painter.paint_and_update_textures(
-            [0, 0],
+            screen_size,
             output.pixels_per_point,
             &clipped_primitives,
             &output.textures_delta,
@@ -47,7 +47,7 @@ impl Gui {
             pos,
             egui::Align2::LEFT_TOP,
             text,
-            egui::FontId::proportional(16.0),
+            egui::FontId::proportional(24.0),
             color,
         );
     }
