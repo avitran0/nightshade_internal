@@ -3,7 +3,7 @@ use utils::log;
 use crate::{
     interface::{Interface, InterfaceRegistration},
     interop::{cstr, str},
-    library::{client::Client, engine::Engine, material_system::MaterialSystem, sdl::SDL},
+    library::{client::Client, engine::Engine, material_system::MaterialSystem, sdl::Sdl},
 };
 
 pub mod client;
@@ -76,7 +76,7 @@ impl Library {
 }
 
 pub struct Libraries {
-    sdl: SDL,
+    sdl: Sdl,
     client: Client,
     engine: Engine,
     material_system: MaterialSystem,
@@ -84,7 +84,7 @@ pub struct Libraries {
 
 impl Libraries {
     pub fn new() -> Option<Self> {
-        let sdl = SDL::new()?;
+        let sdl = Sdl::new()?;
         let client = Client::new()?;
         let engine = Engine::new()?;
         let material_system = MaterialSystem::new()?;
@@ -97,7 +97,7 @@ impl Libraries {
         })
     }
 
-    pub fn sdl(&self) -> &SDL {
+    pub fn sdl(&self) -> &Sdl {
         &self.sdl
     }
 

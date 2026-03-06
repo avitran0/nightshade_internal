@@ -38,6 +38,7 @@ impl Gui {
         ))
     }
 
+    #[allow(dead_code)]
     pub fn draw_line(&self, points: [Pos2; 2], stroke: Stroke) {
         self.screen_painter().line_segment(points, stroke);
     }
@@ -52,6 +53,7 @@ impl Gui {
         );
     }
 
+    #[allow(dead_code)]
     pub fn draw_rect(&self, rect: Rect, stroke: Stroke, fill: Color32) {
         self.screen_painter()
             .rect(rect, 0.0, fill, stroke, StrokeKind::Inside);

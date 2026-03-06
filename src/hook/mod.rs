@@ -81,7 +81,7 @@ impl Hooks {
             libraries.sdl().gl_swap_window_ptr(),
             sdl_swap_window_hook as *const () as usize,
             &ORIGINAL_SDL_SWAP_WINDOW,
-        )?;
+        );
         log::info!(
             "hooked sdl_gl_swapwindow at 0x{:X}",
             sdl_gl_swap_window.proxy
@@ -107,10 +107,10 @@ impl Hooks {
         Some(hook)
     }
 
-    fn hook_sdl(function: usize, new_function: usize, atomic: &AtomicUsize) -> Option<SdlHook> {
-        let hook = SdlHook::new(function, new_function)?;
+    fn hook_sdl(function: usize, new_function: usize, atomic: &AtomicUsize) -> SdlHook {
+        let hook = SdlHook::new(function, new_function);
         atomic.store(hook.proxy, Ordering::Relaxed);
-        Some(hook)
+        hook
     }
 }
 type FrameStageNotifyFn = extern "C" fn(*const c_void, i32);

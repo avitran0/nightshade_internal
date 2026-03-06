@@ -13,7 +13,8 @@ type PollEventFn = extern "C" fn(*mut c_void) -> c_int;
 /// int SDL_ShowSimpleMessageBox(Uint32 flags, const char *title, const char *message, SDL_Window *window)
 type ShowSimpleMessageBoxFn = extern "C" fn(u32, *const c_char, *const c_char, *mut c_void);
 
-pub struct SDL {
+#[allow(dead_code)]
+pub struct Sdl {
     library: Library,
     gl_swap_fn: GlSwapFn,
     gl_get_proc_address_fn: GLGetProcAddressFn,
@@ -21,7 +22,7 @@ pub struct SDL {
     message_box_fn: ShowSimpleMessageBoxFn,
 }
 
-impl SDL {
+impl Sdl {
     pub fn new() -> Option<Self> {
         let library = Library::new(SDL_LIB)?;
         let gl_swap_fn = library.symbol("SDL_GL_SwapWindow")?.cast();

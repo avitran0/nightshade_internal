@@ -39,7 +39,7 @@ impl Cheat {
         })
     }
 
-    pub fn frame_stage_notify(&mut self, stage: ClientFrameStage) {}
+    pub fn frame_stage_notify(&mut self, _stage: ClientFrameStage) {}
 
     pub fn gl_swap_buffers(&mut self) {
         let Some(engine_interface) = self.libraries.engine().interface_engine() else {
