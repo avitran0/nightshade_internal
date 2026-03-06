@@ -1,8 +1,8 @@
-use libc::c_void;
+use libc::{c_int, c_void};
 use std::sync::atomic::{AtomicUsize, Ordering};
 use utils::log;
 
-use crate::{CHEAT, hook::sdl_hook::SdlHook, interface::Interface, library::Libraries};
+use crate::{CHEAT, hook::sdl_hook::SdlHook, interface::Interface, library::{Libraries, sdl::{GlSwapFn, PollEventFn, SdlEvent}}};
 
 pub mod pattern;
 pub mod sdl_hook;
@@ -64,6 +64,7 @@ pub struct Hooks {
 
 static ORIGINAL_FRAME_STAGE_NOTIFY: AtomicUsize = AtomicUsize::new(0);
 static ORIGINAL_SDL_SWAP_WINDOW: AtomicUsize = AtomicUsize::new(0);
+static ORIGINAL_SDL_POLL_EVENT: AtomicUsize = AtomicUsize::new(0);
 
 impl Hooks {
     pub fn hook(libraries: &Libraries) -> Option<Self> {
@@ -85,6 +86,11 @@ impl Hooks {
         log::info!(
             "hooked sdl_gl_swapwindow at 0x{:X}",
             sdl_gl_swap_window.proxy
+        );
+        let sdl_poll_event = Self::hook_sdl(
+            libraries.sdl().poll_event_ptr(),
+            sdl_poll_event_hook as *const () as usize,
+            &ORIGINAL_SDL_POLL_EVENT,
         );
 
         Some(Self {
@@ -128,7 +134,6 @@ extern "C" fn frame_stage_notify_hook(this: *const c_void, client_frame_stage: i
     }
 }
 
-type SdlSwapWindowFn = extern "C" fn(*mut c_void);
 extern "C" fn sdl_swap_window_hook(window: *mut c_void) {
     if let Some(cheat) = CHEAT.lock().as_mut() {
         cheat.gl_swap_buffers();
@@ -136,9 +141,26 @@ extern "C" fn sdl_swap_window_hook(window: *mut c_void) {
 
     let original_ptr = ORIGINAL_SDL_SWAP_WINDOW.load(Ordering::Relaxed);
     if original_ptr != 0 {
-        let original_fn: SdlSwapWindowFn = unsafe { std::mem::transmute(original_ptr) };
+        let original_fn: GlSwapFn = unsafe { std::mem::transmute(original_ptr) };
         original_fn(window);
     }
+}
+
+extern "C" fn sdl_poll_event_hook(event: *mut SdlEvent) -> c_int {
+    let original_ptr = ORIGINAL_SDL_SWAP_WINDOW.load(Ordering::Relaxed);
+    let value = if original_ptr != 0 {
+        let original_fn: PollEventFn = unsafe { std::mem::transmute(original_ptr) };
+        original_fn(event)
+    } else {
+        0
+    };
+
+    if let Some(cheat) = CHEAT.lock().as_mut() {
+        let event = unsafe {&*event};
+        cheat.poll_event(event);
+    }
+
+    value
 }
 
 pub enum ClientFrameStage {

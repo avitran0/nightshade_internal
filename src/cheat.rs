@@ -1,12 +1,14 @@
 use std::sync::Arc;
 
-use egui::RawInput;
 use utils::log;
 
 use crate::{
     gui::Gui,
     hook::{ClientFrameStage, Hooks},
-    library::{Libraries, sdl::MessageBoxKind},
+    library::{
+        Libraries,
+        sdl::{MessageBoxKind, SdlEvent},
+    },
 };
 
 pub struct Cheat {
@@ -47,21 +49,20 @@ impl Cheat {
         };
         let (width, height) = engine_interface.screen_size();
 
-        let input = RawInput {
-            screen_rect: Some(egui::Rect::from_min_size(
-                egui::Pos2::ZERO,
-                egui::vec2(width as f32, height as f32),
-            )),
-            ..Default::default()
-        };
-
-        self.gui.start_frame(input);
+        self.gui.start_frame(egui::Rect::from_min_size(
+            egui::Pos2::ZERO,
+            egui::vec2(width as f32, height as f32),
+        ));
         self.gui
             .draw_text(egui::pos2(50.0, 50.0), "text here", egui::Color32::WHITE);
         self.gui.window("title", |ui| {
             ui.label("cock and balls");
         });
         self.gui.end_frame([width as u32, height as u32]);
+    }
+
+    pub fn poll_event(&mut self, event: &SdlEvent) {
+        self.gui.add_event(event);
     }
 }
 

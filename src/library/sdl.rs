@@ -2,14 +2,14 @@ use libc::{c_char, c_int, c_void};
 
 use crate::{
     interop::cstr,
-    library::{constants::SDL_LIB, Library},
+    library::{Library, constants::SDL_LIB},
 };
 
 /// void SDL_GL_SwapWindow(SDL_Window *)
-type GlSwapFn = extern "C" fn(*mut c_void);
+pub type GlSwapFn = extern "C" fn(*mut c_void);
 type GLGetProcAddressFn = extern "C" fn(*const c_char) -> *mut c_void;
 /// int SDL_PollEvent(SDL_Event *)
-type PollEventFn = extern "C" fn(*mut c_void) -> c_int;
+pub type PollEventFn = extern "C" fn(*mut SdlEvent) -> c_int;
 /// int SDL_ShowSimpleMessageBox(Uint32 flags, const char *title, const char *message, SDL_Window *window)
 type ShowSimpleMessageBoxFn = extern "C" fn(u32, *const c_char, *const c_char, *mut c_void);
 
@@ -56,6 +56,37 @@ impl Sdl {
 
     pub fn gl_swap_window_ptr(&self) -> usize {
         self.gl_swap_fn as usize
+    }
+
+    pub fn poll_event_ptr(&self) -> usize {
+        self.poll_event_fn as usize
+    }
+}
+
+#[repr(C)]
+#[derive(Clone, Copy)]
+pub union SdlEvent {
+    kind: u32,
+    mouse_motion: SdlMouseMotionEvent,
+}
+
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct SdlMouseMotionEvent {
+    kind: u32,
+    timestamp: u32,
+    window_id: u32,
+    which: u32,
+    state: u32,
+    x: i32,
+    y: i32,
+    x_rel: i32,
+    y_rel: i32,
+}
+
+impl SdlEvent {
+    pub fn egui(&self) -> egui::Event {
+        egui::Event::PointerGone
     }
 }
 

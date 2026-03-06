@@ -2,20 +2,36 @@ use std::sync::Arc;
 
 use egui::{Color32, Pos2, Rect, Stroke, StrokeKind, Ui};
 
+use crate::library::sdl::SdlEvent;
+
 pub struct Gui {
     pub ctx: egui::Context,
     pub painter: egui_glow::Painter,
+    pub input: egui::RawInput,
 }
 
 impl Gui {
     pub fn new(gl: Arc<glow::Context>) -> Self {
         let ctx = egui::Context::default();
         let painter = egui_glow::Painter::new(gl, "", None, true).unwrap();
+        let input = egui::RawInput::default();
 
-        Self { ctx, painter }
+        Self {
+            ctx,
+            painter,
+            input,
+        }
     }
 
-    pub fn start_frame(&mut self, input: egui::RawInput) {
+    pub fn add_event(&mut self, event: &SdlEvent) {
+        self.input.events.push(event.egui());
+    }
+
+    pub fn start_frame(&mut self, screen_rect: egui::Rect) {
+        let input = egui::RawInput {
+            screen_rect: Some(screen_rect),
+            ..self.input.clone()
+        };
         self.ctx.begin_pass(input);
     }
 
