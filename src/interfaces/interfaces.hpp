@@ -6,14 +6,18 @@
 #include <string>
 
 #include "interfaces/client.hpp"
+#include "interfaces/convar.hpp"
 #include "interfaces/engine.hpp"
 #include "interfaces/entity_list.hpp"
+#include "interfaces/material_system.hpp"
 #include "util/log.hpp"
 
 namespace Interfaces {
-    inline Client *client;
-    inline EntityList *entity_list;
-    inline Engine *engine;
+    inline ClientInterface *client;
+    inline EntityListInterface *entity_list;
+    inline EngineInterface *engine;
+    inline MaterialSystemInterface *material_system;
+    inline ConVarInterface *convar;
 
     bool InitInterfaces();
 

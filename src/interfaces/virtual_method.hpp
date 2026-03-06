@@ -15,3 +15,8 @@ inline Ret Invoke(void *gameClass, Args... args) {
 
 #define VIRTUAL_METHOD(index, name, returnType, argsType, argsCall) \
     inline returnType name argsType { return Invoke<returnType, index> argsCall; }
+
+#define CONCAT(a, b) a##b
+#define PADDING_NAME(line) CONCAT(PAD, line)
+
+#define PADDING(size) char PADDING_NAME(__LINE__)[size];
