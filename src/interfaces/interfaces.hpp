@@ -10,6 +10,7 @@
 #include "interfaces/engine.hpp"
 #include "interfaces/entity_list.hpp"
 #include "interfaces/material_system.hpp"
+#include "interfaces/model_render.hpp"
 #include "util/log.hpp"
 
 namespace Interfaces {
@@ -18,6 +19,7 @@ namespace Interfaces {
     inline EngineInterface *engine;
     inline MaterialSystemInterface *material_system;
     inline ConVarInterface *convar;
+    inline ModelRenderInterface *model_render;
 
     bool Init();
 
