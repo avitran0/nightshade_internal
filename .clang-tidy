@@ -1,3 +1,3 @@
 ---
-Checks: "clang-analyzer-*,google-*,performance-*"
+Checks: "clang-analyzer-*,google-*,performance-*,-performance-no-int-to-ptr"
 ...

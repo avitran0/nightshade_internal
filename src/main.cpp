@@ -10,10 +10,7 @@ __attribute__((constructor)) void init() {
     Interfaces::Init();
     Hooks::Init();
 
-    int width = 0;
-    int height = 0;
-    Interfaces::engine->GetScreenSize(&width, &height);
-    Log::Info("screen size: ({}, {})", width, height);
+    Log::Info("max clients: {}", Interfaces::engine->GetMaxClients());
     Log::Info("loaded nightshade");
 }
 
