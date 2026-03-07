@@ -17,8 +17,7 @@ struct SDLHook {
 
     SDLHook() = delete;
     SDLHook(const char *sdl_function_name, void *hook_function);
-
-    ~SDLHook() {}
+    ~SDLHook();
 };
 
 using SwapWindowFn = void (*)(SDL_Window *);

@@ -14,10 +14,12 @@ __attribute__((constructor)) void init() {
     int height = 0;
     Interfaces::engine->GetScreenSize(&width, &height);
     Log::Info("screen size: ({}, {})", width, height);
+    Log::Info("loaded nightshade");
 }
 
 __attribute__((destructor)) void exit() {
+    Log::Info("unloading nightshade");
     Menu::Shutdown();
     Hooks::Uninit();
-    Log::Info("unloading nightshade");
+    Log::Info("unloaded nightshade");
 }
