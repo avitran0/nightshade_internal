@@ -4,6 +4,7 @@
 
 namespace Hooks {
     void Init();
+    void Uninit();
 
     inline SDLHook *swap_window;
 }

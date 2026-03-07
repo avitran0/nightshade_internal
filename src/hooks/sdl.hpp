@@ -21,4 +21,5 @@ struct SDLHook {
     ~SDLHook() {}
 };
 
+using SwapWindowFn = void (*)(SDL_Window *);
 void SwapWindowHook(SDL_Window *window);

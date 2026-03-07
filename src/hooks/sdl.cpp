@@ -1,4 +1,6 @@
 #include "hooks/sdl.hpp"
+
+#include "hooks/hooks.hpp"
 #include "menu/menu.hpp"
 
 SDLHook::SDLHook(const char *sdl_function_name, void *hook_function) {
@@ -12,4 +14,5 @@ SDLHook::SDLHook(const char *sdl_function_name, void *hook_function) {
 
 void SwapWindowHook(SDL_Window *window) {
     Menu::SwapBuffers(window);
+    reinterpret_cast<SwapWindowFn>(Hooks::swap_window->proxy)(window);
 }
