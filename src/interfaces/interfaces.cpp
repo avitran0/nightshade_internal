@@ -6,7 +6,7 @@
 #include "interfaces/entity_list.hpp"
 #include "interfaces/material_system.hpp"
 
-bool Interfaces::InitInterfaces() {
+bool Interfaces::Init() {
     client = GetInterface<ClientInterface>("./csgo/bin/linux64/client_client.so", "VClient018");
     entity_list = GetInterface<EntityListInterface>(
         "./csgo/bin/linux64/client_client.so", "VClientEntityList003");

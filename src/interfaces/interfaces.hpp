@@ -19,7 +19,7 @@ namespace Interfaces {
     inline MaterialSystemInterface *material_system;
     inline ConVarInterface *convar;
 
-    bool InitInterfaces();
+    bool Init();
 
     using InterfaceCreateFn = void *(*)();
     struct InterfaceRegistration {

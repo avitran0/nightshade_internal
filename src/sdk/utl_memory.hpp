@@ -3,7 +3,7 @@
 #include <cstdlib>
 
 template <typename T>
-struct CUtlMemory {
+struct UtlMemory {
     inline T &operator[](int i) { return memory[i]; }
 
     T *memory = reinterpret_cast<T *>(malloc(allocation_count * sizeof(T)));

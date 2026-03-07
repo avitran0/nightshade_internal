@@ -8,6 +8,8 @@
 #include <algorithm>
 #include <mutex>
 
+#include "util/log.hpp"
+
 void Menu::Init() {
     ImGui::CreateContext();
     auto io = ImGui::GetIO();
@@ -24,6 +26,7 @@ void Menu::Shutdown() {
 void Menu::SwapBuffers(SDL_Window *window) {
     static std::once_flag init;
     std::call_once(init, [window]() {
+        Log::Info("window: {}", reinterpret_cast<void *>(window));
         ImGui_ImplSDL2_InitForOpenGL(window, SDL_GL_GetCurrentContext());
         ImGui_ImplOpenGL3_Init();
     });
@@ -42,6 +45,9 @@ void Menu::SwapBuffers(SDL_Window *window) {
     ImGui::NewFrame();
 
     // todo: input handling, etc
+    ImGui::Begin("window title");
+    ImGui::Text("nice text");
+    ImGui::End();
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

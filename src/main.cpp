@@ -1,10 +1,12 @@
+#include "hooks/hooks.hpp"
 #include "interfaces/interfaces.hpp"
 #include "util/log.hpp"
 
 __attribute__((constructor)) void init() {
     Log::Info("loading nightshade");
 
-    Interfaces::InitInterfaces();
+    Interfaces::Init();
+    Hooks::Init();
 
     int width = 0;
     int height = 0;
