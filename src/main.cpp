@@ -10,7 +10,7 @@ __attribute__((constructor)) void init() {
     Interfaces::Init();
     Hooks::Init();
 
-    Log::Info("max clients: {}", Interfaces::engine->GetMaxClients());
+    Log::Info("is in game: {}", Interfaces::engine->IsInGame());
     Log::Info("loaded nightshade");
 }
 

@@ -8,6 +8,7 @@ namespace Hooks {
     void Uninit();
 
     inline SDLHook *swap_window;
+    inline SDLHook *poll_event;
 
     inline VMTHook *draw_model_execute;
 }

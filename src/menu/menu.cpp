@@ -8,6 +8,8 @@
 #include <algorithm>
 #include <mutex>
 
+#include "SDL_events.h"
+
 void Menu::Init() {
     ImGui::CreateContext();
     auto io = ImGui::GetIO();
@@ -49,3 +51,5 @@ void Menu::SwapBuffers(SDL_Window *window) {
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
+
+void Menu::ProcessEvent(SDL_Event *event) { ImGui_ImplSDL2_ProcessEvent(event); }
