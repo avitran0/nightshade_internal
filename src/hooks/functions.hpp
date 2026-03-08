@@ -10,9 +10,9 @@ using SwapWindowFn = void (*)(SDL_Window *);
 
 void SwapWindowHook(SDL_Window *window);
 
-using PollEventFn = void (*)(SDL_Event *);
+using PollEventFn = int (*)(SDL_Event *);
 
-void PollEvent(SDL_Event *event);
+int PollEvent(SDL_Event *event);
 
 using DrawModelExecuteFn = void (*)(
     void *thisptr, void *ctx, DrawModelState *state, ModelRenderInfo *info,
